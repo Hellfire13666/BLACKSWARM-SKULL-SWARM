@@ -1,0 +1,17 @@
+☣ BLACKSWARM // COLLECTION RADAR v0.5.5
+
+From main rainbow command deck:
+  [13] INTEL COLLECTIONS
+  [7] COLLECTION RADAR
+  Find words: cybersecurity
+  Collection ID filter: press Enter for ALL collections
+  Results display collection names, titles, links and match counts.
+  Type item ID (example: 1) for details; b to go back.
+
+Or from Collections:
+  [8] COLLECTION PULSE
+  A rainbow chart shows all real collection sizes, unique URLs, copies.
+
+Safe: these features search stored metadata snapshots and never open links,
+connect to websites, or write to your vaults. Saved collection notes can be
+older than the current bookmark note if you edited the bookmark later.

@@ -1,0 +1,15 @@
+☣ BLACKSWARM v0.5.5 // COLLECTION RADAR
+
+Run in Linux terminal (no install):
+  bash RUN-BLACKSWARM.sh --color always
+
+Choose [13] INTEL COLLECTIONS.
+  [7] COLLECTION RADAR: search across saved folders (or filter by ID)
+  [8] COLLECTION PULSE: rainbow counts and unique links
+  [1]-[6] Original Intel Collections controls unchanged
+
+For direct launch into collections:
+  bash RUN-BLACKSWARM.sh --collections --color always
+
+Offline metadata only. No browser or desktop edits.
+See README.md for all details.

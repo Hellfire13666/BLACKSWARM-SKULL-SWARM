@@ -1,0 +1,18 @@
+BLACKSWARM // STAR CONTROL (v0.5.3)
+
+Menu [11] -> Session ID -> source/topic/quick-find -> numbered results
+
+TO STAR RESULT #1 THE EASY WAY:
+  f     [press Enter]
+  1     [press Enter]
+  [press Enter to skip optional note]
+  ★ SAVED
+
+Shortcut still available: f 1 [Enter].
+Do not press the F1 function key.
+
+TO EDIT A NOTE:
+  Back to main menu -> [12] Bookmarked Intel -> [1] View favorites
+  e [Enter], then your bookmark ID [Enter]; type new note [Enter]
+
+Only BLACKSWARM bookmark data is changed. No browser and no Linux settings changes.

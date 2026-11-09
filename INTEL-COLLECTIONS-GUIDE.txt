@@ -1,0 +1,26 @@
+☣ BLACKSWARM // INTEL COLLECTIONS · QUICK HELP
+
+EXAMPLE (not a new search):
+
+BLACKSWARM ❯ 13
+COLLECTIONS ❯ 2
+New collection name: Cybersecurity Reads
+Description: Articles worth revisiting
+✓ COLLECTION #1 CREATED
+
+COLLECTIONS ❯ 3
+Collection ID: 1
+Bookmark ID: 1  (use the number from [12] Favorites, NOT your Session ID)
+★ LINK ADDED TO COLLECTION.
+
+COLLECTIONS ❯ 1
+Collection ID to open: 1
+[1] Hacking Toolkit Guide ...
+     https://openlibrary.org/...
+
+Collections live in a new, independent local database.
+Bookmarks and search sessions stay preserved. Linked websites are never opened.
+To remove only a collection item: [5] + COLLECTION ID + ITEM ID + REMOVE.
+To export, select [6] CSV or JSON. Exports are not opened automatically.
+
+No desktop or operating-system preferences are changed.

@@ -1,0 +1,33 @@
+☣ BLACKSWARM // EXAMPLE DESK (ILLUSTRATIVE ONLY)
+
+A Session ID is a number attached to ONE saved search within a vault.
+
+SAMPLE SAVED SEARCHES (not actual records):
+  #1  ethical hacking cybersecurity    500 links
+  #2  open source research             100 links
+
+WHERE TO FIND YOUR ACTUAL SESSION ID:
+  Main menu [3] SAVED SESSION HISTORY
+  Look at the number following #, e.g. #1 => enter 1.
+
+WHERE YOU USE IT:
+  [4] SHOW ALL LINKS: enter the Session ID
+  [5] EXPORT SESSION: enter the same Session ID, choose csv/json/html/raw
+  [7] REVIEW ALL EXCLUDED CANDIDATES: same Session ID
+
+EXAMPLE SEARCH (nothing runs until you initiate it from the menu):
+  [1] LIVE PUBLIC-INDEX SEARCH
+  Search phrase: ethical hacking cybersecurity
+  Sources: press Enter (free public indexes)
+  Limit: 250
+  Quality: focused
+  Search saves links and prints the actual Session ID when finished.
+
+NEW: at a Session ID prompt type ? to view examples, or Enter to cancel.
+This is a TERMINAL help screen. No browser launch, live searches or downloads.
+
+NEW: [9] SWARM CONSTELLATION: enter your actual Session ID, for example 1.
+     Terminal bars for providers/domains, topics from titles, and source overlap.
+NEW: [10] SESSION DELTA: compare two existing Session IDs (older then newer).
+     Shows links only in newer / only in older / shared, with source URLs.
+     It DOES NOT prove online pages were added or removed.

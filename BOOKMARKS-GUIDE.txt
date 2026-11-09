@@ -1,0 +1,23 @@
+☣ BLACKSWARM // BOOKMARKED INTEL QUICK GUIDE
+
+SESSION ID (e.g. #1): the search session from the original research vault.
+BOOKMARK ID (e.g. ★ #1): a different ID in the separate favorites database.
+
+Fastest method:
+  Main menu [11] → Session ID 1 → [1] SOURCES → [1] Crossref
+  On PAGE 1, type: f, Enter, then 1, Enter (or shortcut: f 1)
+  At the note prompt, type: Important defensive research reference
+  See confirmation ★ SAVED to BOOKMARKED INTEL #1
+  Enter b, then 0 to return to the main menu.
+  Main menu [12] → [1] View favorites. Enter bookmark ID 1 for details.
+
+Alternative:
+  Main menu [12] → [2] Star links from a saved session
+  Session ID 1 → optional text filter → f [displayed result number].
+
+All paths are generic, no personal machine details are included.
+Bookmarks live in ~/.local/share/blackswarm-bookmarks/bookmarks.sqlite3
+Research vault is unchanged: ~/.local/share/blackswarm-v4-vault/results.sqlite3
+Remove a single favorite via [12] [4]. Only the separate bookmark DB changes.
+Exports are opt-in: ~/Documents/BLACKSWARM-EXPORTS/BLACKSWARM-BOOKMARKS-###.csv or .json
+No exports are overwritten and no HTML opens automatically.

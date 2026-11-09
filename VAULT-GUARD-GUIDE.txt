@@ -1,0 +1,13 @@
+BLACKSWARM v0.5.7 // VAULT GUARD
+
+Open menu [14] from the command deck, or run: bash RUN-BLACKSWARM.sh --vault-guard --color always
+
+[1] PREVIEW: lists which local SQLite vaults exist; does not create missing files.
+[2] CREATE PRIVATE BACKUP: uses SQLite online consistent snapshot of each available DB. Writes a new ZIP with internal manifest and sha256 per DB. No source DB modified. Backup copies are not encrypted.
+[3] VERIFY SAVED BACKUP: reads an existing backup, validates manifest checksums and SQLite database integrity without restoring anything.
+[0] BACK: returns without action.
+
+By default private backup files live under ~/Documents/BLACKSWARM-EXPORTS/PRIVATE-VAULT-BACKUPS/.
+Do not publish them. They may contain private research notes and link histories.
+This feature backs up BLACKSWARM data, NOT outside accounts or website data.
+No restore/overwrite button, no browser, no OS settings, no network calls.

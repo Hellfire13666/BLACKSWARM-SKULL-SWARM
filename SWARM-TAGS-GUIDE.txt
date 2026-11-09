@@ -1,0 +1,12 @@
+☣ BLACKSWARM v0.5.6 // SWARM TAGS
+
+OPEN: Main menu [13] Intel Collections > [9] Swarm Tags.
+
+[1] See tagged links grouped by unique URL.
+[2] Add tag: select collection ID, choose displayed ITEM ID, type label.
+[3] Remove tag: select link, type label, type REMOVE to confirm.
+[4] Search by tag: e.g. cybersecurity or reference.
+[5] Colorful TAG NEBULA, counting labels for current saved links.
+[0] Back to Intel Collections.
+
+Tags are separate; your original vaults, favorites and collections are never edited by these actions. No web requests or browser.
