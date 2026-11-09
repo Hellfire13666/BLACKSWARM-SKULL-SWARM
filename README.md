@@ -25,7 +25,7 @@ Requires Python 3. The project is terminal-first. Its HTML dashboard is optional
 bash RUN-BLACKSWARM.sh --color always
 ```
 
-Offline tests, when the complete source package has been added:
+Run offline tests:
 
 ```bash
 python3 -m unittest discover -s tests -q
@@ -35,6 +35,6 @@ python3 -m unittest discover -s tests -q
 
 Only approved source code, guides, and Skull Swarm artwork belong in this repository. **Never publish private research sessions, saved bookmarks, personal paths, databases, login tokens, keys, credentials, or Vault Guard backup archives.** Backups are unencrypted and must remain private.
 
-The full source and gallery assets are prepared separately for review. Do not mistake this initial repository README for a complete published application release. No license has been selected.
+The tested v0.5.7 source is now available in this repository. Skull Swarm artwork is staged separately for publication. No license has been selected.
 
 **MADE WITH GLITCH LOVE // GLITCHBYTE PHANTOM LABS** 👻🦠💚💜
