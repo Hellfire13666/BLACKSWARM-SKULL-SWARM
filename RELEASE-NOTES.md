@@ -11,8 +11,8 @@ This release combines public-index link discovery, relevance ranking, deduplicat
 
 ## Release status
 - **116 offline tests passed** against the prepared source package.
-- The source, tests, artwork, and optional gallery are prepared for a separate public upload.
-- **This initial GitHub repository does not yet contain the complete application source.** The full package must be uploaded before the launch instructions in the README can work from a GitHub clone.
+- The original v0.5.7 application source, guides, launcher, and tests are now committed to this repository. Skull Swarm artwork is staged separately.
+- The application can be launched from a GitHub clone using `bash RUN-BLACKSWARM.sh --color always` (Python 3 required).
 - Personal research databases and unencrypted private backup ZIPs are **not** part of the public release.
 
 No license has been selected.
