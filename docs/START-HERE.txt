@@ -1,0 +1,15 @@
+☣ BLACKSWARM // QUICK START 🌈
+
+BLACKSWARM is a terminal-first public-index research tool from GlitchByte Phantom Labs.
+
+Run from the repository directory (Python 3 required):
+  bash RUN-BLACKSWARM.sh --color always
+
+Choose [1] LIVE PUBLIC-INDEX SEARCH to begin.
+Choose [11] CONSTELLATION NAVIGATOR to browse saved links.
+Choose [12] BOOKMARKED INTEL to manage favorites and notes.
+
+The browser stays closed until you intentionally open the optional local dashboard.
+All research data and exports stay on your computer.
+
+See the full guide in MANUAL.md or the project home in ../README.md.
