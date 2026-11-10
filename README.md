@@ -1,10 +1,19 @@
 # ☣️ BLACKSWARM // Rainbow Skull Swarm
 
+![BLACKSWARM Rainbow Skull Swarm artwork](assets/BLACKSWARM-SKULL-SWARM.webp)
+
+
 **RAINBOW DORK-STYLE RESEARCH · PUBLIC INDEXES · TERMINAL FIRST**
 
-**GlitchByte Phantom Labs · v0.5.7 · Skull Swarm Edition**
+**GlitchByte Phantom Labs · Rainbow Skull Swarm Edition**
 
-BLACKSWARM gathers and organizes links from public search and research indexes. Its rainbow terminal lets you explore results, rank relevance, compare sessions, bookmark discoveries, create collections, and tag saved links.
+**Stable repository source: v0.5.7 · Cockpit preview: v0.6.5 (separate local build)**
+
+**BLACKSWARM** is a free-first, terminal-led, multi-provider public-web and research-link discovery system. Discover public-index leads, follow live source progress in a vibrant rainbow terminal, organize research with saved sessions and topic constellations, explore bookmarks and collections, and export results locally. The optional **Swarm Cockpit** preview adds a graphical control room without replacing the original terminal.
+
+## 💀 Skull Swarm identity
+
+A neon, skull-themed research experience: obsidian black, electric violet, acid green, cobalt blue, cyan, hot magenta, and rainbow result streams. Publicly indexed information only; results are research leads, not verified facts or permission to access nonpublic systems.
 
 ## 🌈 Features
 
@@ -17,6 +26,15 @@ BLACKSWARM gathers and organizes links from public search and research indexes. 
 
 BLACKSWARM uses *dork-style research terminology*, but does **not** directly scrape Google or Bing, exploit targets, or scan private networks. Search operator support depends on the public provider.
 
+
+
+## ☣️ Experimental Cockpit preview (v0.6.5)
+
+The separate **v0.6.5 laboratory package** adds **[20] SWARM COCKPIT**, an opt-in local visual interface with working public-index search, provider progress, paginated results, filters, saved sessions, bookmarks, and exports. Searches and normal discovery remain accessible in the colorful terminal. The Cockpit opens a browser only when you explicitly choose its menu action or launcher.
+
+The laboratory series also adds Source Pulse [15], Search Quality Lab [16], Smart Intent Lens [17], Precision Lens [18], and Concept Bridge [19]. Those ranking diagnostics are **heuristic previews**, not verification of source credibility. External providers can time out, return zero results, or change their terms. No commercial API key is required for the default public sources.
+
+**Release status:** this repository's directly published source remains the approved **v0.5.7** version. The v0.6.5 Cockpit is a separately packaged test build and has **not** yet been adopted as the repository's stable source. Do not assume the checkout of `main` includes menu [20]. An updated local ZIP is being validated before a stable source promotion.
 
 ## 📖 Full BLACKSWARM manual
 
@@ -62,6 +80,6 @@ python3 -m unittest discover -s tests -q
 
 Only approved source code, guides, and Skull Swarm artwork belong in this repository. **Never publish private research sessions, saved bookmarks, personal paths, databases, login tokens, keys, credentials, or Vault Guard backup archives.** Backups are unencrypted and must remain private.
 
-The tested v0.5.7 source is now available in this repository. Skull Swarm artwork is staged separately for publication. No license has been selected.
+The tested v0.5.7 source remains available in this repository. Rainbow Skull Swarm artwork is included as a repository thumbnail. No license has been selected.
 
 **MADE WITH GLITCH LOVE // GLITCHBYTE PHANTOM LABS** 👻🦠💚💜
