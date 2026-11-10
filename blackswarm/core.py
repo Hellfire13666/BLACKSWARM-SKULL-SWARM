@@ -9,6 +9,7 @@ import re
 import sqlite3
 import threading
 import time
+import xml.etree.ElementTree as ET
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -16,10 +17,11 @@ from datetime import datetime, timezone
 from contextlib import contextmanager
 from pathlib import Path
 
-APP_VERSION = '0.5.7'
-SOURCES = ('wikipedia', 'crossref', 'gdelt', 'openlibrary', 'archive', 'europepmc', 'searxng')
+APP_VERSION = '0.6.4'
+SOURCES = ('wikipedia', 'crossref', 'gdelt', 'openlibrary', 'archive', 'europepmc', 'arxiv', 'wikidata', 'loc', 'pubmed', 'searxng')
 STORE = Path(os.getenv('BLACKSWARM_DATA', str(Path.home() / '.local' / 'share' / 'blackswarm-v4-vault')))
 USER_AGENT = f'BLACKSWARM/{APP_VERSION} (personal public-source research; no bulk scraping)'
+DEFAULT_SOURCES = ('wikipedia', 'crossref', 'openlibrary', 'archive', 'europepmc', 'arxiv', 'wikidata', 'loc', 'pubmed')
 TRACKERS = {'fbclid','gclid','msclkid','mc_cid','mc_eid','igshid'}
 
 
@@ -84,6 +86,22 @@ def http_get_json(url: str, *, timeout=14):
             raise RuntimeError('Provider response exceeded size limit')
         return json.loads(body.decode('utf-8-sig'))
 
+
+def http_get_xml(url: str, *, timeout=16):
+    """Bounded, read-only Atom retrieval; reject DTDs/entities before parsing."""
+    req = urllib.request.Request(url, headers={'User-Agent': USER_AGENT,
+                                                'Accept': 'application/atom+xml, application/xml'})
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        if response.status != 200:
+            raise RuntimeError(f'HTTP {response.status}')
+        if int(response.headers.get('Content-Length','0') or '0') > 7_000_000:
+            raise RuntimeError('Provider response too large')
+        raw=response.read(7_000_001)
+    if len(raw)>7_000_000:
+        raise RuntimeError('Provider response exceeded size limit')
+    if b'<!DOCTYPE' in raw.upper() or b'<!ENTITY' in raw.upper():
+        raise RuntimeError('XML document declarations are not supported')
+    return ET.fromstring(raw)
 
 def make_record(url, title, snippet, source):
     url = clean_url(str(url or ''))
@@ -227,6 +245,104 @@ def europepmc(query: str, limit: int, get=http_get_json):
     return output
 
 
+def arxiv(query: str, limit: int, get=http_get_xml):
+    """One documented Atom search, capped at 100 academic-paper records."""
+    take=min(100, max(0,limit))
+    if not take:return []
+    # all: searches arXiv metadata. This is not full web indexing.
+    term=' AND '.join('all:'+word for word in query.split()[:8] if word.strip())
+    params={'search_query':term, 'start':0, 'max_results':take,
+            'sortBy':'relevance', 'sortOrder':'descending'}
+    root=get('https://export.arxiv.org/api/query?' + urllib.parse.urlencode(params))
+    ns='{http://www.w3.org/2005/Atom}'
+    out=[]
+    for entry in root.findall(ns+'entry')[:take]:
+        original=(entry.findtext(ns+'id') or '').strip()
+        # Accept only identifiers on the official arXiv abstract host.
+        match=re.fullmatch(r'https?://(?:www\.)?arxiv\.org/abs/([A-Za-z0-9./-]+)',original)
+        if not match:continue
+        arxiv_id=match.group(1)
+        if '..' in arxiv_id or len(arxiv_id)>70:continue
+        rec=make_record('https://arxiv.org/abs/'+arxiv_id,
+                        entry.findtext(ns+'title'),entry.findtext(ns+'summary'),'arXiv')
+        if rec:out.append(rec)
+    return out
+
+
+def wikidata(query: str, limit: int, get=http_get_json):
+    """Public entity label search (max 50 items); not general web pages."""
+    take=min(50,max(0,limit))
+    if not take:return []
+    params={'action':'wbsearchentities','search':query,'language':'en',
+            'format':'json','type':'item','limit':take}
+    data=get('https://www.wikidata.org/w/api.php?' + urllib.parse.urlencode(params))
+    out=[]
+    for item in data.get('search',[])[:take]:
+        identifier=str(item.get('id',''))
+        if not re.fullmatch(r'Q[1-9][0-9]{0,15}',identifier):continue
+        rec=make_record('https://www.wikidata.org/wiki/'+identifier,
+                        item.get('label') or identifier,
+                        item.get('description',''),'Wikidata')
+        if rec:out.append(rec)
+    return out
+
+
+def loc(query: str, limit: int, get=None):
+    """Library of Congress public collection search, single capped request."""
+    take=min(100,max(0,limit))
+    if not take:return []
+    # The full LoC search JSON contains heavyweight facets and nested records.
+    # Official 'at=results' returns only the result list, reducing payload size
+    # and the chance of a slow request. A small one-page batch is intentional.
+    take=min(take, 30)
+    params={'q':query,'fo':'json','at':'results','c':take,'sp':1}
+    url='https://www.loc.gov/search/?' + urllib.parse.urlencode(params)
+    # A shorter socket timeout limits stalls in this slower public index.
+    # No retries or parallel calls; other selected sources continue on failure.
+    data=get(url) if get is not None else http_get_json(url, timeout=8)
+    out=[]
+    for item in data.get('results',[])[:take]:
+        raw=str(item.get('id',''))
+        parsed=urllib.parse.urlsplit(raw)
+        if parsed.scheme not in ('http','https') or parsed.hostname not in ('loc.gov','www.loc.gov'):
+            continue
+        # LoC's API sometimes emits older http:// identifiers. Upgrade only
+        # official loc.gov URLs to HTTPS, never follow arbitrary hosts.
+        raw=urllib.parse.urlunsplit(('https','www.loc.gov',parsed.path,
+                                     parsed.query,parsed.fragment))
+        desc=item.get('description') or []
+        if isinstance(desc,list): desc='; '.join(str(x) for x in desc[:2])
+        rec=make_record(raw,item.get('title'),desc,'Library of Congress')
+        if rec:out.append(rec)
+    return out
+
+
+def pubmed(query: str, limit: int, get=http_get_json):
+    """NCBI PubMed ESearch + ESummary; no API key, two rate-aware GETs."""
+    take=min(100,max(0,limit))
+    if not take:return []
+    search_params={'db':'pubmed','term':query,'retmode':'json','retmax':take,'sort':'relevance'}
+    found=get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?'+urllib.parse.urlencode(search_params))
+    ids=[]
+    for raw in found.get('esearchresult',{}).get('idlist',[])[:take]:
+        uid=str(raw)
+        if re.fullmatch(r'[1-9][0-9]{0,12}',uid) and uid not in ids: ids.append(uid)
+    if not ids:return []
+    # The key-free NCBI API allows at most three requests per second.
+    time.sleep(0.38)
+    summary_params={'db':'pubmed','id':','.join(ids),'retmode':'json'}
+    data=get('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?'+urllib.parse.urlencode(summary_params))
+    info=data.get('result',{})
+    out=[]
+    for uid in ids:
+        item=info.get(uid,{})
+        if not isinstance(item,dict):continue
+        notes=' · '.join(str(x) for x in (item.get('fulljournalname',''),item.get('pubdate','')) if x)
+        rec=make_record('https://pubmed.ncbi.nlm.nih.gov/'+uid+'/',
+                        item.get('title') or 'PubMed record '+uid,notes,'PubMed')
+        if rec:out.append(rec)
+    return out
+
 def searxng(query: str, limit: int, instance: str, get=http_get_json):
     endpoint = searx_endpoint(instance)
     if not endpoint:
@@ -327,13 +443,22 @@ def smart_rank(records, query, max_results, quality='focused'):
     focused: exclude weak heuristically matched candidates.
     broad: preserve all, best-first. Entire candidate set is returned for audit.
     """
-    if quality not in ('focused','broad'):
-        raise ValueError('Quality must be focused or broad')
+    if quality not in ('focused','broad','intent','precision'):
+        raise ValueError('Quality must be focused, broad, intent or precision')
     if not 0 < max_results <= 1000:
         raise ValueError('Result limit must be between 1 and 1000')
     candidates = combine(records,max(1,len(records)))
     for row in candidates:
-        row['score'],row['relevance'] = score_record(query,row)
+        if quality == 'intent':
+            from .intent import score_intent
+            insight = score_intent(query,row)
+            row['score'],row['relevance'] = insight['score'],insight['relevance']
+        elif quality == 'precision':
+            from .precision import score_precision
+            insight = score_precision(query,row)
+            row['score'],row['relevance'] = insight['score'],insight['relevance']
+        else:
+            row['score'],row['relevance'] = score_record(query,row)
     # Stable order when scores tie keeps original provider sequence.
     candidates.sort(key=lambda x:x['score'],reverse=True)
     eligible = [r for r in candidates if quality=='broad' or r['relevance']!='low']

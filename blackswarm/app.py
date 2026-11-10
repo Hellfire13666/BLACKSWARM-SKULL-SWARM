@@ -12,14 +12,14 @@ import urllib.parse
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from . import core, intel, navigator, bookmarks, collections, guard
+from . import core, intel, navigator, bookmarks, collections, guard, concept, precision, pulse, quality, intent
 from .neon import Neon
 
 ROOT = Path(__file__).resolve().parent
 JOBS = {'current': None}
 JOBS_LOCK = threading.RLock()
 VAULT = None
-BUDGET = {'wikipedia':150, 'crossref':500, 'gdelt':200, 'openlibrary':200, 'archive':200, 'europepmc':400, 'searxng':200}
+BUDGET = {'wikipedia':150, 'crossref':500, 'gdelt':200, 'openlibrary':200, 'archive':200, 'europepmc':400, 'arxiv':100, 'wikidata':50, 'loc':30, 'pubmed':100, 'searxng':200}
 # Console-first: browser-launched searches print the same provider activity and
 # individual saved links to the *launching terminal*. A bounded copy also feeds
 # the dashboard console. Never execute received text or ANSI from data providers.
@@ -40,10 +40,19 @@ def terminal_event(kind, message, url=''):
               'link':'cyan','saved':'green','note':'yellow'}
     color = colors.get(kind, 'white')
     signs = {'start':'◈','source':'↗','ok':'✓','error':'✗','link':'↳','saved':'▣','note':'·'}
+    # Preserve uncluttered text for --color never and redirected output.
+    # With colors enabled, rotate all six neon colors across words/results.
+    # Alert signs remain red for failures: colorful doesn't mean concealing errors.
     with PRINT_LOCK:
-        print(NEON.fg(f'  {signs.get(kind,"·")} ',color) +
-              NEON.fg(clean,color,kind in ('saved','start')),
-              flush=True)
+        if NEON.enabled and kind in ('source', 'ok', 'link', 'start', 'saved'):
+            body = NEON.rainbow_words(clean, offset=EVENT_SEQ % 6)
+            band = ('  '+NEON.rainbow_band(offset=EVENT_SEQ % 6, cells=12)) if kind in ('source', 'ok') else ''
+            print(NEON.fg(f'  {signs.get(kind,"·")} ',color) + body + band,
+                  flush=True)
+        else:
+            print(NEON.fg(f'  {signs.get(kind,"·")} ',color) +
+                  NEON.fg(clean,color,kind in ('saved','start')),
+                  flush=True)
 
 def clear_events():
     global EVENT_SEQ
@@ -59,8 +68,8 @@ def run_search(query, sources, limit, instance='', demo=False, update=None, qual
     if not query.strip() or len(query)>180:
         raise ValueError('Enter a search phrase of up to 180 characters')
     limit = int(limit)
-    if quality not in ('focused','broad'):
-        raise ValueError('Choose focused or broad quality mode')
+    if quality not in ('focused','broad','intent','precision'):
+        raise ValueError('Choose focused, broad, intent or precision quality mode')
     if limit not in (50,100,250,500,1000):
         raise ValueError('Choose a supported result limit')
     if not demo and not sources:
@@ -68,6 +77,7 @@ def run_search(query, sources, limit, instance='', demo=False, update=None, qual
     if not demo and 'searxng' in sources:
         core.searx_endpoint(instance)
     terminal_event('start', f"{'DEMO' if demo else 'LIVE'}  |  {query}  |  maximum {limit} unique URLs  |  {'sample' if demo else quality.upper()}")
+    terminal_event('note', 'RAINBOW SIGNALS ONLINE  |  source colors cycle through all six neon bands')
     if demo:
         entries = core.demo_results(limit)
         reports = {'Demo':{'status':'sample only','found':len(entries)}}
@@ -83,6 +93,7 @@ def run_search(query, sources, limit, instance='', demo=False, update=None, qual
         if source not in core.SOURCES:
             continue
         terminal_event('source', f'Checking {source.upper()} public index…')
+        source_started = time.monotonic()
         if update: update(f'Checking {source}…',reports,None)
         try:
             get = {'wikipedia': lambda:core.wikipedia(query,min(limit,BUDGET[source])),
@@ -91,18 +102,44 @@ def run_search(query, sources, limit, instance='', demo=False, update=None, qual
                    'openlibrary':lambda:core.openlibrary(query,min(limit,BUDGET[source])),
                    'archive':lambda:core.archive(query,min(limit,BUDGET[source])),
                    'europepmc':lambda:core.europepmc(query,min(limit,BUDGET[source])),
+                   'arxiv':lambda:core.arxiv(query,min(limit,BUDGET[source])),
+                   'wikidata':lambda:core.wikidata(query,min(limit,BUDGET[source])),
+                   'loc':lambda:core.loc(query,min(limit,BUDGET[source])),
+                   'pubmed':lambda:core.pubmed(query,min(limit,BUDGET[source])),
                    'searxng':lambda:core.searxng(query,min(limit,BUDGET[source]),instance)}[source]
             found = get()
             batches.append(found)
-            reports[source] = {'status':'ok','found':len(found)}
+            reports[source] = {'status':'ok' if found else 'empty','found':len(found)}
             terminal_event('ok', f'{source.upper()} returned {len(found)} candidate URLs')
+            # Print genuine provider previews in the terminal as each provider ends.
+            for preview in found[:3]:
+                terminal_event('link', f"  [{source.upper()}] {preview['title'][:90]}")
+                terminal_event('link', f"      {preview['url']}",preview['url'])
         except Exception as exc:
-            message = str(exc)
-            if len(message)>160: message = message[:160]+'…'
+            # One provider may time out without invalidating other providers.
+            # 'ERROR' is persisted honestly and visible through Source Pulse.
+            import socket
+            from urllib.error import URLError
+            timeout = isinstance(exc, (TimeoutError, socket.timeout)) or (isinstance(exc, URLError)
+                      and isinstance(exc.reason, (TimeoutError, socket.timeout))) or 'timed out' in str(exc).lower()
+            if timeout:
+                message = 'provider timed out; skipped; other sources continue'
+                terminal_event('error', f'{source.upper()} TIMED OUT  |  no links from this source; continuing')
+            else:
+                message = str(exc)
+                if len(message)>160: message = message[:160]+'…'
+                terminal_event('error', f'{source.upper()} unavailable: {message}')
             reports[source] = {'status':'error','found':0,'detail':message}
-            terminal_event('error', f'{source.upper()} unavailable: {message}')
+        reports[source]['elapsed_ms'] = max(0, round((time.monotonic() - source_started) * 1000))
+        terminal_event('note', f"{source.upper()} completed in {reports[source]['elapsed_ms']} ms [{reports[source]['status'].upper()}]")
         if update: update(f'Checked {source}',reports,None)
         time.sleep(0.3)
+    source_ok=sum(report['status']=='ok' for report in reports.values())
+    source_empty=sum(report['status']=='empty' for report in reports.values())
+    source_failed=sum(report['status']=='error' for report in reports.values())
+    terminal_event('note', f'PROVIDER CHECK  |  {source_ok} OK  |  {source_empty} EMPTY  |  {source_failed} UNAVAILABLE')
+    if source_failed:
+        terminal_event('note', 'One or more providers failed; totals reflect only sources that returned data.')
     # Rotate across sources so one large provider does not bury the others.
     from itertools import zip_longest
     interleaved = [r for group in zip_longest(*batches) for r in group if r is not None] if batches else []
@@ -120,7 +157,7 @@ def run_search(query, sources, limit, instance='', demo=False, update=None, qual
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version='BLACKSWARM/0.5.7'
+    server_version='BLACKSWARM/0.6.5'
     def log_message(self, fmt, *args):
         if os.getenv('BLACKSWARM_VERBOSE'):
             super().log_message(fmt, *args)
@@ -141,7 +178,13 @@ class Handler(BaseHTTPRequestHandler):
     def send_json(self, data, status=200):
         self.send_data(json.dumps(data,ensure_ascii=False).encode('utf-8'),status=status)
 
+    def _trusted_host(self):
+        port=self.server.server_port
+        return self.headers.get('Host','') in (f'127.0.0.1:{port}', f'localhost:{port}')
+
     def do_GET(self):
+        if not self._trusted_host():
+            self.send_json({'error':'Localhost request required'},403);return
         u=urllib.parse.urlsplit(self.path)
         args=urllib.parse.parse_qs(u.query)
         if u.path=='/':
@@ -150,6 +193,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_data((ROOT/'ui.css').read_bytes(),'text/css; charset=utf-8')
         elif u.path=='/ui.js':
             self.send_data((ROOT/'ui.js').read_bytes(),'text/javascript; charset=utf-8')
+        elif u.path=='/swarm-icon.png':
+            self.send_data((ROOT/'swarm-icon.png').read_bytes(),'image/png')
+        elif u.path=='/api/bookmarks':
+            # Opening a session never creates a new bookmarks database.
+            # A shelf is created only when the user explicitly stars a link.
+            shelf_file=bookmarks.BOOKMARKS_HOME/'bookmarks.sqlite3'
+            self.send_json({'items':bookmarks.BookmarkShelf().all() if shelf_file.is_file() else []})
         elif u.path=='/api/state':
             with JOBS_LOCK:
                 self.send_json(JOBS.get('current') or {'phase':'idle'})
@@ -193,6 +243,31 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json({'error':'Not found'},404)
 
     def do_POST(self):
+        if not self._trusted_host():
+            self.send_json({'error':'Localhost request required'},403);return
+        if self.path=='/api/bookmark':
+            origin=self.headers.get('Origin','')
+            host=self.headers.get('Host','')
+            if origin not in ('',f'http://{host}') or self.headers.get('Content-Type','').split(';')[0] != 'application/json':
+                self.send_json({'error':'Local same-origin JSON request required'},403);return
+            try:
+                n=int(self.headers.get('Content-Length','0'))
+                if n<1 or n>2048: raise ValueError('Invalid bookmark payload size')
+                payload=json.loads(self.rfile.read(n))
+                run_id=int(payload.get('run_id',0))
+                url=str(payload.get('url',''))
+                note=str(payload.get('note',''))[:700]
+                run=VAULT.run(run_id)
+                if not run: raise ValueError('Unknown session')
+                if run['mode']=='demo': raise ValueError('Illustrative demo links cannot be bookmarked')
+                # Only bookmarks of actual saved results may be stored. No arbitrary URLs.
+                match=next((x for x in VAULT.results(run_id) if x['url']==url),None)
+                if not match: raise ValueError('Link is not in this saved session')
+                bid,created=bookmarks.BookmarkShelf().add(match,run_id,run['query'],note)
+                self.send_json({'id':bid,'created':created})
+            except (ValueError,TypeError,AttributeError,json.JSONDecodeError) as exc:
+                self.send_json({'error':str(exc)},400)
+            return
         if self.path!='/api/start':
             self.send_json({'error':'Not found'},404); return
         origin=self.headers.get('Origin','')
@@ -214,7 +289,7 @@ class Handler(BaseHTTPRequestHandler):
             demo = payload.get('demo') is True
             instance = str(payload.get('instance',''))[:200]
             quality = str(payload.get('quality','focused'))
-            if quality not in ('focused','broad'): raise ValueError('Invalid quality mode')
+            if quality not in ('focused','broad','intent','precision'): raise ValueError('Invalid quality mode')
             if not demo and not sources: raise ValueError('Choose a source')
             if not demo and 'searxng' in sources: core.searx_endpoint(instance)
         except (ValueError,TypeError,AttributeError,json.JSONDecodeError) as e:
@@ -419,6 +494,69 @@ def _terminal_navigator(neon, sid=None, input_fn=None):
 
 
 
+def _terminal_source_pulse(neon, sid=None):
+    """Read-only analysis of provider reports and saved candidate provenance."""
+    if sid is None:
+        sid = _ask_session_id(neon)
+    if sid is None:
+        return
+    run = VAULT.run(sid)
+    if not run:
+        print(neon.fg('  Session not found in this research vault.', 'yellow'))
+        return
+    data = pulse.analyze(run, VAULT.results(sid), VAULT.candidates(sid))
+    pulse.display(neon, data)
+
+
+def _terminal_quality_lab(neon, sid=None, input_fn=None):
+    """Explain existing ranked metadata, with no search or vault mutations."""
+    if sid is None:
+        sid = _ask_session_id(neon)
+    if sid is None:
+        return
+    run = VAULT.run(sid)
+    if not run:
+        print(neon.fg('  Session not found in this research vault.', 'yellow'))
+        return
+    quality.quality_desk(neon, run, VAULT.results(sid), VAULT.candidates(sid), input_fn=input_fn)
+
+
+def _terminal_intent_lens(neon, sid=None, input_fn=None):
+    """Read-only whole-query re-ranking preview for stored candidates."""
+    if sid is None:
+        sid = _ask_session_id(neon)
+    if sid is None:
+        return
+    run = VAULT.run(sid)
+    if not run:
+        print(neon.fg('  Session not found in this research vault.', 'yellow'))
+        return
+    intent.intent_desk(neon, run, VAULT.results(sid), VAULT.candidates(sid), input_fn=input_fn)
+
+
+def _terminal_concept_bridge(neon, sid=None, input_fn=None):
+    """Read-only, explainable related-topic preview for saved metadata."""
+    if sid is None: sid = _ask_session_id(neon)
+    if sid is None: return
+    run = VAULT.run(sid)
+    if not run:
+        print(neon.fg('  Session not found in this research vault.', 'yellow'))
+        return
+    concept.concept_desk(neon, run, VAULT.results(sid), VAULT.candidates(sid), input_fn=input_fn)
+
+
+def _terminal_precision_lens(neon, sid=None, input_fn=None):
+    """Read-only title-anchored preview of a previously saved session."""
+    if sid is None:
+        sid = _ask_session_id(neon)
+    if sid is None: return
+    run = VAULT.run(sid)
+    if not run:
+        print(neon.fg('  Session not found in this research vault.', 'yellow'))
+        return
+    precision.precision_desk(neon, run, VAULT.results(sid), VAULT.candidates(sid), input_fn=input_fn)
+
+
 def _terminal_bookmarks(neon, input_fn=None):
     """Optional write access to independent bookmarks ONLY; research vault unchanged."""
     shelf=bookmarks.BookmarkShelf()
@@ -434,7 +572,7 @@ def _terminal_collections(neon, input_fn=None):
 
 def terminal_menu(neon, default_limit=100):
     neon.banner()
-    print(neon.fg('  ● LAB v0.5.7  |  TERMINAL-FIRST VAULT GUARD + TAGS  |  NO AUTO BROWSER', 'green', True))
+    print(neon.fg('  ● LAB v0.6.5  |  RAINBOW SWARM COCKPIT  |  TERMINAL-FIRST', 'green', True))
     print(neon.fg('  ◈ VAULT ', 'purple')+str(VAULT.dbpath))
     print(neon.fg('  Browser stays closed unless YOU explicitly open it.', 'cyan'))
     while True:
@@ -453,6 +591,12 @@ def terminal_menu(neon, default_limit=100):
         print(neon.fg(' [12] ', 'yellow') + 'BOOKMARKED INTEL // STAR CONTROL + NOTES')
         print(neon.fg(' [13] ', 'green') + 'INTEL COLLECTIONS // RADAR + TAGS + PULSE')
         print(neon.fg(' [14] ', 'cyan') + 'VAULT GUARD // PRIVATE BACKUP + VERIFY')
+        print(neon.fg(' [15] ', 'pink') + 'SOURCE PULSE // READ-ONLY PROVIDER + LINK QUALITY')
+        print(neon.fg(' [16] ', 'green') + 'SEARCH QUALITY LAB // EXPLAIN RANKED LINKS')
+        print(neon.fg(' [17] ', 'pink') + 'SMART INTENT LENS // PREVIEW WHOLE-QUERY RANKING')
+        print(neon.fg(' [18] ', 'cyan') + 'PRECISION LENS // TITLE-FIRST SEARCH FILTER')
+        print(neon.fg(' [19] ', 'green') + 'CONCEPT BRIDGE // RELATED TOPICS (READ-ONLY)')
+        print(neon.fg(' [20] ', 'purple') + 'SWARM COCKPIT // OPEN LOCAL VISUAL INTERFACE')
         print(neon.fg('  [0] ', 'red') + 'QUIT')
         choice=input(neon.fg('  BLACKSWARM ❯ ', 'green', True)).strip()
         if choice == '0' or choice.lower() in ('q','quit','exit'):
@@ -461,9 +605,9 @@ def terminal_menu(neon, default_limit=100):
         if choice == '1':
             query=input(neon.fg('  Search phrase: ', 'cyan')).strip()
             if not query: print(neon.fg('  Search phrase cannot be blank.', 'yellow')); continue
-            print(neon.fg('  SOURCES: wikipedia,crossref,gdelt,openlibrary,archive,europepmc,searxng', 'purple'))
-            value=input(neon.fg('  Sources [Enter = free public indexes]: ', 'cyan')).strip()
-            sources=[x.strip().lower() for x in value.split(',') if x.strip()] if value else ['wikipedia','crossref','openlibrary','archive','europepmc']
+            print(neon.fg('  SOURCES: '+', '.join(core.SOURCES), 'purple'))
+            value=input(neon.fg('  Sources [Enter = nine free public indexes]: ', 'cyan')).strip()
+            sources=[x.strip().lower() for x in value.split(',') if x.strip()] if value else list(core.DEFAULT_SOURCES)
             unknown=[x for x in sources if x not in core.SOURCES]
             if unknown:
                 print(neon.fg('  Unknown sources: '+', '.join(unknown), 'yellow'));continue
@@ -472,7 +616,7 @@ def terminal_menu(neon, default_limit=100):
                 amount=int(selection)
                 if amount not in (50,100,250,500,1000): raise ValueError('Unsupported limit')
                 instance=input(neon.fg('  Public HTTPS SearXNG URL: ', 'cyan')).strip() if 'searxng' in sources else ''
-                quality=input(neon.fg('  Quality [focused/broad; default focused]: ', 'cyan')).strip().lower() or 'focused'
+                quality=input(neon.fg('  Quality [focused/broad/intent/precision; default focused]: ', 'cyan')).strip().lower() or 'focused'
                 rid=run_search(query,sources,amount,instance,quality=quality)
                 neon.summary(VAULT.run(rid),VAULT.dbpath,rid)
             except ValueError as exc:
@@ -503,13 +647,28 @@ def terminal_menu(neon, default_limit=100):
             _terminal_collections(neon)
         elif choice == '14':
             guard.guard_desk(neon)
+        elif choice == '15':
+            _terminal_source_pulse(neon)
+        elif choice == '16':
+            _terminal_quality_lab(neon)
+        elif choice == '17':
+            _terminal_intent_lens(neon)
+        elif choice == '18':
+            _terminal_precision_lens(neon)
+        elif choice == '19':
+            _terminal_concept_bridge(neon)
+        elif choice == '20':
+            print(neon.fg('  ☣ Opening SWARM COCKPIT locally on this computer.', 'green'))
+            print(neon.fg('  Close the cockpit with Ctrl+C to return to this deck.', 'cyan'))
+            run_dashboard(neon, open_browser=True)
+            neon.banner()
         elif choice == '6':
             print(neon.fg('  DASHBOARD MODE IS OPTIONAL. No browser will open.', 'cyan'))
             print(neon.fg('  You can paste the printed URL into a browser if wanted.', 'yellow'))
             run_dashboard(neon, open_browser=False)
             neon.banner()
         else:
-            print(neon.fg('  Select a menu number from 0 to 14.', 'yellow'))
+            print(neon.fg('  Select a menu number from 0 to 20.', 'yellow'))
 
 
 def run_dashboard(neon, open_browser=False, demo=False):
@@ -542,23 +701,29 @@ def main(argv=None):
     parser.add_argument('--navigate',type=int,metavar='ID',help='Interactive navigator for saved metadata; bookmarks are separate')
     parser.add_argument('--bookmarks',action='store_true',help='Open local bookmark shelf in terminal')
     parser.add_argument('--collections',action='store_true',help='Open private Intel Collections in terminal (no browser)')
+    parser.add_argument('--source-pulse',type=int,metavar='ID',help='Read-only provider and provenance report for saved session')
+    parser.add_argument('--quality-lab',type=int,metavar='ID',help='Read-only explanation of ranked candidates in a saved session')
+    parser.add_argument('--intent-lens',type=int,metavar='ID',help='Read-only whole-query scoring preview for one saved session')
+    parser.add_argument('--precision-lens',type=int,metavar='ID',help='Preview optional title-first precision ranking, read-only')
+    parser.add_argument('--concept-bridge',type=int,metavar='ID',help='Read-only related-topic lens for a stored session')
     parser.add_argument('--vault-guard',action='store_true',help='Open private backup and verification menu; no browser or search')
     parser.add_argument('--demo',action='store_true',help='Print a demo in terminal, then exit; no browser')
     parser.add_argument('--cli',action='store_true',help='Run a one-off terminal search and exit')
     parser.add_argument('--dashboard',action='store_true',help='Start optional localhost dashboard without opening a browser')
     parser.add_argument('--open-dashboard',action='store_true',help='Explicitly request opening the dashboard in your browser')
+    parser.add_argument('--cockpit',action='store_true',help='Explicitly open the local SWARM COCKPIT interface')
     parser.add_argument('--no-browser',action='store_true',help='Legacy flag: browser is already off by default')
     parser.add_argument('--query',default='open source intelligence')
-    parser.add_argument('--sources',default='wikipedia,crossref,gdelt,openlibrary,archive,europepmc',help='Comma-separated public indexes')
+    parser.add_argument('--sources',default=','.join(core.DEFAULT_SOURCES),help='Comma-separated public indexes')
     parser.add_argument('--limit',type=int,default=100,choices=[50,100,250,500,1000])
     parser.add_argument('--searxng',default='',help='Optional public HTTPS instance')
-    parser.add_argument('--quality',default='focused',choices=['focused','broad'],help='Filter weak matches (focused), or save all ranked matches (broad)')
+    parser.add_argument('--quality',default='focused',choices=['focused','broad','intent','precision'],help='Legacy focused/broad, or optional intent/precision ranking')
     args=parser.parse_args(argv)
     neon=NEON=Neon(args.color)
     if args.color_test:
         neon.test()
         return 0
-    if (args.constellation is not None or args.compare is not None or args.navigate is not None) and not (core.STORE/'results.sqlite3').is_file():
+    if (args.constellation is not None or args.compare is not None or args.navigate is not None or args.source_pulse is not None or args.quality_lab is not None or args.intent_lens is not None or args.precision_lens is not None or args.concept_bridge is not None) and not (core.STORE/'results.sqlite3').is_file():
         print(neon.fg('  No saved BLACKSWARM v4 research vault found. No new vault created.', 'yellow'))
         return 0
     if args.vault_guard:
@@ -584,6 +749,21 @@ def main(argv=None):
     if args.compare is not None:
         _terminal_delta(neon,*args.compare)
         return 0
+    if args.source_pulse is not None:
+        _terminal_source_pulse(neon,args.source_pulse)
+        return 0
+    if args.quality_lab is not None:
+        _terminal_quality_lab(neon,args.quality_lab)
+        return 0
+    if args.intent_lens is not None:
+        _terminal_intent_lens(neon,args.intent_lens)
+        return 0
+    if args.precision_lens is not None:
+        _terminal_precision_lens(neon,args.precision_lens)
+        return 0
+    if args.concept_bridge is not None:
+        _terminal_concept_bridge(neon,args.concept_bridge)
+        return 0
     if args.navigate is not None:
         try:
             _terminal_navigator(neon,args.navigate)
@@ -596,8 +776,8 @@ def main(argv=None):
         rid=run_search(args.query,sources,args.limit,args.searxng,demo=args.demo,quality=args.quality)
         neon.summary(VAULT.run(rid),VAULT.dbpath,rid)
         return 0
-    if args.dashboard or args.open_dashboard:
-        return run_dashboard(neon,open_browser=args.open_dashboard)
+    if args.dashboard or args.open_dashboard or args.cockpit:
+        return run_dashboard(neon,open_browser=args.open_dashboard or args.cockpit)
     try:
         return terminal_menu(neon,args.limit)
     except (KeyboardInterrupt, EOFError):

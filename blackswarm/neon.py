@@ -58,6 +58,33 @@ class Neon:
         return ''.join(paint(ch, PALETTE[i % len(PALETTE)], self.enabled, bold=True)
                        for i, ch in enumerate(text))
 
+    def rainbow_words(self, value, offset=0):
+        """Truecolor rainbow across *words*, preserving readable copied text.
+
+        Input is pre-sanitized in terminal_event. No terminal configuration edits.
+        """
+        import re
+        value = str(value)
+        if not self.enabled:
+            return value
+        output = []
+        index = 0
+        for piece in re.findall(r'\s+|\S+', value):
+            if piece.isspace():
+                output.append(piece)
+            else:
+                output.append(paint(piece, PALETTE[(offset + index) % len(PALETTE)], True,
+                                    bold=(index % 3 == 0)))
+                index += 1
+        return ''.join(output)
+
+    def rainbow_band(self, offset=0, cells=12):
+        """Small six-color rotating scanline, invisible when color is disabled."""
+        if not self.enabled:
+            return ''
+        return ''.join(paint('▰', PALETTE[(offset + i) % len(PALETTE)], True)
+                       for i in range(max(0, min(cells, 24))))
+
     def banner(self):
         print(self.fg('╔' + '═'*48 + '╗', 'purple'))
         print(self.fg('║', 'purple') + '  ☣  ' + self.spectrum('BLACKSWARM') +
@@ -68,7 +95,7 @@ class Neon:
 
     def startup(self, url, dbpath):
         self.banner()
-        print(self.fg('  ● LAB v0.5.6', 'green') + '  ' + self.fg('LOCAL / PRIVATE', 'purple'))
+        print(self.fg('  ● LAB v0.6.5', 'green') + '  ' + self.fg('LOCAL / PRIVATE', 'purple'))
         print(self.fg('  ◈ DASHBOARD  ', 'cyan') + url)
         print(self.fg('  ◈ VAULT      ', 'purple') + str(dbpath))
         print(self.fg('  ◈ CTRL+C     ', 'yellow') + 'Return to terminal with Ctrl+C')

@@ -1,81 +1,59 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark"><title>BLACKSWARM // GlitchByte Phantom Labs</title>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>BLACKSWARM // SWARM COCKPIT</title>
+  <link rel="icon" type="image/png" href="/swarm-icon.png">
   <link rel="stylesheet" href="/ui.css">
-</head>
-<body>
-<div class="ambient"></div>
+  <script src="/ui.js" defer></script>
+</head><body>
 <div class="shell">
-  <aside class="sidebar">
-    <div class="brand"><div class="brandicon">☣</div><div><b>GlitchByte</b><small>PHANTOM LABS</small></div></div>
-    <div class="sideline"></div>
-    <div class="navitem active">◉ <span>SWARM CONTROL</span></div>
-    <div class="navitem">⌕ <span>PUBLIC SEARCH</span></div>
-    <div class="navitem">▤ <span>RESEARCH VAULT</span></div>
-    <div class="navitem">⬡ <span>SOURCE GUARD</span></div>
-    <div class="side-bottom"><span class="green-dot"></span> LOCAL DESKTOP MODE<br><small>Not connected to a live website or remote server</small></div>
-  </aside>
-  <main>
-    <header class="topbar"><span>GLITCHBYTE / INTELLIGENCE LAB / <b>BLACKSWARM</b></span><span class="pill">LAB BUILD v0.3.1</span></header>
-    <section class="hero">
-      <div class="hero-grid"></div><div class="swarm-shape" aria-hidden="true">☣</div>
-      <div class="kicker">◈ MULTI-ENGINE INTELLIGENCE SWARM</div>
-      <h1>BLACK<span>SWARM</span><i>_</i></h1>
-      <p>One query. Independent public sources. Unique links. A research vault you control.</p>
-      <div class="hero-tags"><span>◈ SOURCE FUSION</span><span>◇ URL DEDUP</span><span>▣ LOCAL VAULT</span><span>✧ NO REQUIRED API KEYS</span></div>
+ <aside class="sidebar">
+  <div class="brand"><img src="/swarm-icon.png" alt="Skull Swarm icon"><div><strong>BLACK<span>SWARM</span></strong><small>GLITCHBYTE PHANTOM LABS</small></div></div>
+  <div class="side-section-label">SWARM NAVIGATION</div>
+  <a class="navitem active" href="#search"><i>⌕</i><span>Live Discovery</span><b>01</b></a>
+  <a class="navitem" href="#resultsPanel"><i>◈</i><span>Result Explorer</span><b>02</b></a>
+  <a class="navitem" href="#vaultPanel"><i>▤</i><span>Research Sessions</span><b>03</b></a>
+  <a class="navitem" href="#bookmarksPanel"><i>★</i><span>Bookmarked Intel</span><b>04</b></a>
+  <a class="navitem" href="#liveConsole"><i>›_</i><span>Signal Stream</span><b>05</b></a>
+  <div class="side-halo" aria-hidden="true"><div class="halo-ring">☣</div><div class="halo-particle p1"></div><div class="halo-particle p2"></div><div class="halo-particle p3"></div></div>
+  <div class="side-bottom"><span class="green-dot"></span> LOCAL SIGNAL ONLINE <small>Running on your computer only. The rainbow terminal remains active.</small></div>
+ </aside>
+ <main>
+  <header class="topbar"><div class="crumbs">PHANTOM LABS <span> / </span> OPERATIONS <span> / </span> <b>SWARM COCKPIT</b></div><div class="topright"><span class="dot"></span> LOCAL ONLY <span class="build-pill">v0.6.5</span></div></header>
+  <section class="hero"><div class="hero-stripe"></div><div class="hero-content"><div class="eyebrow">☣ ACTIVE MODULE 20 // SWARM COCKPIT</div><h1><span>BLACK</span><em>SWARM</em><small>_</small></h1><p>Hunt public knowledge. Trace forgotten links. Let the swarm reveal the trail.</p><div class="hero-tags"><span>◉ 11 PUBLIC SOURCES AVAILABLE</span><span>◈ LIVE TERMINAL MIRROR</span><span>★ PRIVATE RESEARCH VAULT</span></div></div><div class="hero-symbol" aria-hidden="true"><div class="orbital o1"></div><div class="orbital o2"></div><div class="orbital o3"></div><b>☣</b><span class="spark a"></span><span class="spark b"></span><span class="spark c"></span></div></section>
+  <section class="metrics" aria-label="Status summary"><div class="metric"><span>CAPTURED LINKS</span><b id="statCount">0</b><small>loaded session</small></div><div class="metric"><span>PROVIDERS CHECKED</span><b id="statProviders">0</b><small>per search</small></div><div class="metric"><span>RESEARCH SESSIONS</span><b id="statSessions">0</b><small>local vault</small></div><div class="metric"><span>SYSTEM SIGNAL</span><b id="statState" class="state">READY</b><small id="statusNote">Awaiting a discovery run</small></div></section>
+  <div class="workspace">
+   <div class="maincolumn">
+    <section class="panel search-panel" id="search"><div class="panel-heading"><h2><span class="hi-green">⌕</span> LIVE DISCOVERY</h2><span class="heading-tail">PUBLIC WEB &amp; RESEARCH INDEXES</span></div>
+     <form id="searchForm">
+      <label for="q" class="minor">SEARCH PHRASE</label><div class="querybar"><span class="prompt">❯_</span><input id="q" maxlength="180" required autocomplete="off" placeholder="Search the public web and research indexes…" value=""><button id="searchBtn" type="submit">⚡ LAUNCH SWARM</button></div>
+      <div class="config-grid"><div class="config-cell"><label for="limit" class="minor">MAX UNIQUE LINKS</label><select id="limit"><option>50</option><option>100</option><option selected>250</option><option>500</option><option>1000</option></select></div>
+       <div class="config-cell"><label for="quality" class="minor">SEARCH MODE</label><select id="quality"><option value="broad" selected>Broad · more discoveries</option><option value="focused">Focused · strong matches</option><option value="intent">Intent · whole-query matching</option><option value="precision">Precision · title-first</option></select></div>
+       <div class="config-cell instance"><label for="searx" class="minor">SEARXNG INSTANCE (OPTIONAL)</label><input id="searx" autocomplete="off" placeholder="https://public-instance.example"></div></div>
+      <details class="sources" open><summary><strong>◈ PROVIDER MATRIX</strong><span>11 available · choose your indexes</span></summary>
+       <div class="source-checks"><label><input type="checkbox" name="source" value="wikipedia" checked><span>Wikipedia</span></label><label><input type="checkbox" name="source" value="crossref" checked><span>Crossref</span></label><label><input type="checkbox" name="source" value="openlibrary" checked><span>Open Library</span></label><label><input type="checkbox" name="source" value="archive" checked><span>Internet Archive</span></label><label><input type="checkbox" name="source" value="europepmc" checked><span>Europe PMC</span></label><label><input type="checkbox" name="source" value="arxiv" checked><span>arXiv</span></label><label><input type="checkbox" name="source" value="wikidata" checked><span>Wikidata</span></label><label><input type="checkbox" name="source" value="loc" checked><span>Library of Congress</span></label><label><input type="checkbox" name="source" value="pubmed" checked><span>PubMed</span></label><label><input type="checkbox" name="source" value="gdelt"><span>GDELT News</span></label><label><input type="checkbox" name="source" value="searxng"><span>SearXNG · optional</span></label></div>
+       <div class="source-tools"><button class="micro-btn" id="selectDefault" type="button">DEFAULT NINE</button><button class="micro-btn" id="selectAll" type="button">ALL AVAILABLE</button><button class="micro-btn" id="clearSources" type="button">CLEAR</button></div>
+      </details>
+     </form><div class="action-row"><button id="demoBtn" class="ghost-btn" type="button">◈ OFFLINE DEMO</button><span>Real search requests use public APIs. No auto browser or remote server.</span></div>
     </section>
-    <section class="stats" aria-label="Search stats">
-      <div class="metric"><small>SESSION LINKS</small><strong id="statCount">0</strong><span>unique URLs</span></div>
-      <div class="metric"><small>ENGINES CHECKED</small><strong id="statProviders">0</strong><span>per search</span></div>
-      <div class="metric"><small>SAVED SESSIONS</small><strong id="statSessions">0</strong><span>local vault</span></div>
-      <div class="metric"><small>SYSTEM STATE</small><strong id="statState" class="stat-word">READY</strong><span id="statusNote">Waiting for a query</span></div>
+    <section class="panel console-panel" id="liveConsole"><div class="panel-heading"><h2><span class="hi-pink">›_</span> LIVE SIGNAL STREAM <span class="live-indicator">● TERMINAL SYNC</span></h2><span class="heading-tail">RESULTS ALSO PRINT IN TERMINAL</span></div><div id="liveLog" class="console-log" aria-live="polite"><div class="line note">☣ SWARM READY // Launch a real discovery run or revisit an archived session.</div></div><div class="console-bottom"><span>⚡ RAINBOW STREAM ACTIVE</span><span>NO HIDDEN SEARCH ACTIVITY</span></div></section>
+    <section class="panel results-panel" id="resultsPanel"><div class="panel-heading"><h2><span class="hi-cyan">◈</span> RESULT EXPLORER</h2><span id="resultsMeta" class="heading-tail">CHOOSE A SAVED SESSION</span></div>
+     <div class="results-toolbar"><div class="filterwrap"><span>⌕</span><input id="filter" placeholder="Find within titles, links and snippets…" aria-label="Filter saved results"></div><select id="sourceFilter" aria-label="Filter result source"><option value="">All sources</option></select><select id="relevanceFilter" aria-label="Filter relevance"><option value="">All relevance</option><option value="high">High</option><option value="possible">Possible</option><option value="low">Low</option></select></div>
+     <div class="result-upper"><span id="resultSummary">Results will appear here</span><div class="downloads"><a id="expCSV" class="disabled" href="#">CSV</a><a id="expJSON" class="disabled" href="#">JSON</a><a id="expHTML" class="disabled" href="#">HTML</a></div></div>
+     <div id="results" class="result-list"><div class="empty"><strong>⌕</strong><b>NO SIGNAL YET</b><p>Choose a saved session or launch the swarm to see actual public research results.</p></div></div>
+     <div class="pagination"><button id="pagePrev" type="button" class="ghost-btn">← PREVIOUS</button><span id="countFooter">No results loaded</span><button id="pageNext" type="button" class="ghost-btn">NEXT →</button></div>
     </section>
-    <section class="workspace">
-      <div class="maincolumn">
-        <section class="panel search-panel">
-          <div class="panel-heading"><h2><span>⌕</span> SEARCH FUSION</h2><span>PUBLIC INDEX QUERY</span></div>
-          <form id="searchForm">
-            <label for="q" class="minor">TOPIC, PHRASE OR SUPPORTED SEARCH OPERATOR</label>
-            <div class="querybar"><span>›_</span><input id="q" maxlength="180" required autocomplete="off" placeholder="e.g. open source security research" value="open source intelligence"><button id="searchBtn" type="submit">▶ SEARCH</button></div>
-            <div class="search-options"><div class="source-title">SOURCES <span>Choose one or more</span></div>
-              <div class="source-checks">
-                <label><input type="checkbox" name="source" value="wikipedia" checked><span>WIKIPEDIA <small>reference</small></span></label>
-                <label><input type="checkbox" name="source" value="crossref" checked><span>CROSSREF <small>research</small></span></label>
-                <label><input type="checkbox" name="source" value="gdelt" checked><span>GDELT <small>news</small></span></label>
-                <label><input type="checkbox" name="source" value="openlibrary" checked><span>OPEN LIBRARY <small>books</small></span></label>
-                <label><input type="checkbox" name="source" value="archive" checked><span>INTERNET ARCHIVE <small>catalogue</small></span></label>
-                <label><input type="checkbox" name="source" value="europepmc" checked><span>EUROPE PMC <small>research</small></span></label>
-                <label><input type="checkbox" name="source" value="searxng"><span>SEARXNG <small>web / optional</small></span></label>
-              </div>
-              <div class="config-row"><div class="limit-wrap"><label for="limit" class="minor">MAX UNIQUE LINKS</label><select id="limit"><option value="50">50</option><option value="100" selected>100</option><option value="250">250</option><option value="500">500</option><option value="1000">1000</option></select></div><div class="searx-wrap"><label for="searx" class="minor">OPTIONAL HTTPS SEARXNG INSTANCE</label><input id="searx" autocomplete="url" placeholder="https://your-searxng-instance.example"></div></div>
-            </div>
-          </form>
-          <div class="action-row"><button class="ghost-btn" id="demoBtn" type="button">◈ OFFLINE DEMO</button><span>Demo uses fictional sample results. Live search uses public provider APIs.</span></div>
-        </section>
-        <section class="panel live-console">
-          <div class="panel-heading"><h2><span>▤</span> TERMINAL MIRROR</h2><span>LIVE OUTPUT ALSO PRINTS IN YOUR LINUX TERMINAL</span></div>
-          <div id="liveLog" class="console-log" aria-live="polite"><div class="line note">☣ BLACKSWARM standing by. Real search activity will appear here and in the launching terminal.</div></div>
-          <div class="console-footer">SOURCE CHECKS · URLS · ERRORS · VAULT CONFIRMATION</div>
-        </section>
-        <section class="panel results-panel">
-          <div class="panel-heading"><h2><span>≡</span> SWARM RESULTS</h2><span id="resultsMeta">NO SESSION LOADED</span></div>
-          <div class="results-toolbar"><input id="filter" placeholder="⌕ Filter saved results by title, URL or source" aria-label="Filter results"><div class="downloads"><a id="expCSV" class="disabled" href="#">CSV</a><a id="expJSON" class="disabled" href="#">JSON</a><a id="expHTML" class="disabled" href="#">HTML</a></div></div>
-          <div id="results" class="result-list"><div class="empty"><div>⌕</div><b>THE SWARM IS STANDING BY</b><p>Run a public search to see real results, or open the clearly labeled offline demo.</p></div></div>
-          <div id="countFooter" class="count-footer">Waiting for results</div>
-        </section>
-      </div>
-      <div class="rightcolumn">
-        <section class="panel providers"><div class="panel-heading"><h2><span>◈</span> SOURCE STATUS</h2></div><div id="providerList"><p class="side-hint">Source health is shown after a search. An unconfigured SearXNG connection stays off.</p></div></section>
-        <section class="panel vault"><div class="panel-heading"><h2><span>▣</span> RESEARCH VAULT</h2></div><p class="side-hint">Your search history lives on this computer, in a private SQLite database. Select any session to reopen its links.</p><div id="sessions" class="session-list"><span class="side-hint">No saved sessions yet.</span></div></section>
-        <section class="panel domain-panel"><div class="panel-heading"><h2><span>◉</span> DOMAIN SWARM</h2><span>BASED ON STORED RESULTS</span></div><div id="domainMap" class="domain-map"><p class="side-hint">Domains appear after a session opens.</p></div></section>
-        <section class="panel compare-panel"><div class="panel-heading"><h2><span>⇄</span> SESSION DELTA</h2></div><div class="compare-body"><label class="minor" for="compareSelect">COMPARE CURRENT WITH</label><select id="compareSelect"><option value="">Choose previous session</option></select><button id="compareBtn" type="button" class="ghost-btn">COMPARE LINKS</button><div id="compareOutput" class="compare-output">Select two saved sessions to see newly discovered and missing URLs.</div></div></section>
-        <section class="panel rules"><div class="panel-heading"><h2><span>⬡</span> SOURCE GUARD</h2></div><div class="guard"><p><span>✓</span> Public metadata and links only</p><p><span>✓</span> Provider errors shown honestly</p><p><span>✓</span> Respectful request caps and delays</p><p><span>✓</span> No credentials, login or bypass</p><p><span>✓</span> No scanning or site crawling</p></div><div class="guard-note">These are public reference, books, news, scholarly and archive indexes, not an unrestricted Google/Bing scraper. "1,000" is a ceiling, not a promised result count.</div></section>
-      </div>
-    </section>
-    <footer>☣ BLACKSWARM LAB // GLITCHBYTE PHANTOM LABS <span>LOCAL ONLY · PROTOTYPE · NO EXISTING PROJECTS MODIFIED</span></footer>
-  </main>
+   </div>
+   <div class="rightcolumn">
+    <section class="panel providers"><div class="panel-heading"><h2><span class="hi-green">◉</span> PROVIDER SIGNALS</h2></div><div id="providerList"><p class="side-hint">Run a search to view provider response counts, timeouts and status.</p></div></section>
+    <section class="panel vault" id="vaultPanel"><div class="panel-heading"><h2><span class="hi-pink">▤</span> SAVED SESSIONS</h2><span class="heading-tail">PRIVATE</span></div><p class="side-hint">Your earlier searches are ready. Click a session to explore its public links.</p><div id="sessions" class="session-list"><p class="side-hint">Loading sessions…</p></div></section>
+    <section class="panel bookmark-panel" id="bookmarksPanel"><div class="panel-heading"><h2><span class="hi-yellow">★</span> STARRED DISCOVERIES</h2><span id="bookmarkCount" class="heading-tail">0 SAVED</span></div><div id="bookmarks"><p class="side-hint">Tap ☆ beside a result to save it to your private bookmarks.</p></div></section>
+    <section class="panel domain-panel"><div class="panel-heading"><h2><span class="hi-cyan">◇</span> DOMAIN NEBULA</h2></div><div id="domainMap"><p class="side-hint">Source domains appear when a session opens.</p></div></section>
+    <section class="panel compare-panel"><div class="panel-heading"><h2><span class="hi-pink">⇄</span> SESSION DELTA</h2></div><label class="minor" for="compareSelect">COMPARE CURRENT SESSION TO</label><select id="compareSelect"><option value="">Choose a previous session</option></select><button id="compareBtn" type="button" class="ghost-btn">COMPARE SAVED LINKS</button><div id="compareOutput" class="compare-output">See new, missing and shared public URLs from two saved searches.</div></section>
+    <section class="panel safety-panel"><div class="panel-heading"><h2><span class="hi-green">⊙</span> LOCAL RESEARCH MODE</h2></div><p>✓ Research vault stays on this computer</p><p>✓ Provider timeouts reported honestly</p><p>✓ No login, bypass or site scanning</p><p>✓ Rainbow terminal stays primary</p></section>
+   </div>
+  </div>
+  <footer>☣ BLACKSWARM // GLITCHBYTE PHANTOM LABS <span>LOCAL SWARM COCKPIT · PUBLIC INDEX RESEARCH · NO AUTO BROWSER</span></footer>
+ </main>
 </div>
-<script src="/ui.js" defer></script>
 </body></html>

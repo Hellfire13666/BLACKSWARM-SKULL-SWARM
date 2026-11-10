@@ -1,234 +1,264 @@
-# ☣️ BLACKSWARM // Complete User Manual
+# 📖 BLACKSWARM // Rainbow Skull Swarm User Guide
 
-**GlitchByte Phantom Labs · v0.5.7 · Rainbow Skull Swarm Edition**
+**v0.6.5 · GlitchByte Phantom Labs · Terminal-first discovery + local Cockpit**
 
-BLACKSWARM is a **terminal-first, public-index research tool** for gathering and organizing links. It offers multi-source discovery, heuristic relevance ranking, deduplication, colorful result maps, bookmarks, collections, tags, and explicitly requested local backup snapshots.
+[Back to the colorful project homepage](../README.md) · [Cockpit preview](../assets/BLACKSWARM-COCKPIT-PREVIEW.webp)
 
-> **Important:** “Dork-style” describes search-query research, **not** direct Google/Bing scraping, intrusion, vulnerability exploitation, or private-network scanning. Each public source determines which query operators it supports. An indexed result does not establish that a site is safe, truthful, or currently online.
+## 🗺️ Find your route
 
-## Start here
+| You want to... | Go here |
+|---|---|
+| Search the public indexes | [Live search](#-live-search-step-by-step) |
+| Use the graphical control room | [Swarm Cockpit](#-swarm-cockpit-visual-tour) |
+| Avoid scrolling 500 URLs | [Quick Find](#-constellation-navigator-walkthrough) |
+| Save and organize finds | [Stars and collections](#-bookmarks-collections-and-tags) |
+| Understand each of the 20 options | [Complete deck](#-complete-command-deck) |
+| Compare searches | [Session Delta](#-compare-sessions-and-investigate-sources) |
+| Fix an empty or timed-out provider | [Troubleshooting](#-troubleshooting) |
 
-Requires **Python 3** and the Python standard library. No separate Python packages, desktop integration, or system customization are required.
+## 🐧 Install and start
 
-From the extracted project folder:
+You need a Linux terminal and Python 3, which is the only runtime dependency for the application itself. Use the GitHub **Code → Download ZIP** option and extract it, or:
 
 ```bash
+git clone https://github.com/Hellfire13666/BLACKSWARM-SKULL-SWARM.git
+cd BLACKSWARM-SKULL-SWARM
 bash RUN-BLACKSWARM.sh --color always
 ```
 
-The application opens the rainbow **SWARM COMMAND DECK**, where you select menu numbers and press Enter. BLACKSWARM does **not** automatically open a browser.
+Use the launcher from **inside the cloned/extracted directory**, or provide its full path. The application opens the rainbow **SWARM COMMAND DECK** without launching a browser automatically.
 
-Run offline checks (tests do not require real search results):
+To explicitly open the local interface without selecting menu [20]:
+
+```bash
+bash OPEN-SWARM-COCKPIT.sh
+```
+
+For users who prefer plain text, `--color never` disables ANSI colors for the run. It does **not** alter terminal appearance settings.
+
+## 💀 Your command deck at a glance
+
+*Illustrative layout, with the real command numbers:*
+
+```text
+╔════ BLACKSWARM // GLITCHBYTE PHANTOM LABS ════╗
+║     🌈  RAINBOW SKULL SWARM · PUBLIC INDEXES  ║
+╚══════════════════════════════════════════════╝
+  [1]   LIVE PUBLIC-INDEX SEARCH
+  [3]   SAVED SESSION HISTORY
+  [5]   EXPORT SESSION
+  [9]   SWARM CONSTELLATION
+ [11]   CONSTELLATION NAVIGATOR
+ [12]   BOOKMARKED INTEL
+ [13]   INTEL COLLECTIONS
+ [15]   SOURCE PULSE
+ [16]   SEARCH QUALITY LAB
+ [17]   SMART INTENT LENS
+ [18]   PRECISION LENS
+ [19]   CONCEPT BRIDGE
+ [20]   SWARM COCKPIT
+  [0]   QUIT
+  BLACKSWARM ❯ 1
+```
+
+The excerpt above intentionally omits some menu items for readability; the [complete command deck](#-complete-command-deck) documents all 20.
+
+## 🔎 Live search step by step
+
+1. Enter **`1`** at `BLACKSWARM ❯`.
+2. Type your search topic, for example **`cybersecurity incident response`**.
+3. At the sources prompt, press **Enter** to use all **nine default public indexes**, or specify comma-separated provider identifiers such as `wikipedia,crossref,arxiv`.
+4. Choose a maximum of **50, 100, 250, 500, or 1,000** unique selected links. A limit is a *cap*, not a promised result count.
+5. Choose **`focused`** (default), **`broad`**, **`intent`**, or **`precision`**.
+6. Watch the live terminal print provider names, sample titles, source URLs and honest timeout/empty messages. Once finished, the session is saved with a **Session ID**.
+
+### 🌈 Example terminal flow
+
+```text
+BLACKSWARM ❯ 1
+Search phrase: cybersecurity incident response
+Sources [Enter = nine free public indexes]:
+Max unique links [50/100/250/500/1000; default 100]: 250
+Quality [focused/broad/intent/precision; default focused]: focused
+Checking WIKIPEDIA public index...
+Checking CROSSREF public index...
+...
+VAULT SAVED  |  session #<assigned by your computer>
+```
+
+*Illustration of the prompts, not a live network test. The actual status, titles, counts and available links depend on provider responses.*
+
+### 🧬 What do the search modes mean?
+
+| Mode | Best use | Tradeoff |
+|---|---|---|
+| **focused** | Starting with stronger keyword matches | May omit more loosely related sources |
+| **broad** | Discovering more tangential or archival leads | More irrelevant matches to review |
+| **intent** | Favoring the whole search phrase | Experimental rule; can lower relevant partial matches |
+| **precision** | Preferring stronger title matches | May overlook relevant papers with indirect titles |
+
+These are **heuristic rankings**, not credibility checks, semantic proof, or factual verification. Use **[7]** to inspect the excluded candidate pool when search quality matters.
+
+### 🌍 Provider identifiers
+
+| Provider ID | Search area | Default? |
+|---|---|:---:|
+| `wikipedia` | Public encyclopedia topics | ✓ |
+| `crossref` | Academic DOI and publication metadata | ✓ |
+| `openlibrary` | Catalogs and public book metadata | ✓ |
+| `archive` | Internet Archive public catalog records | ✓ |
+| `europepmc` | Life sciences and health literature | ✓ |
+| `arxiv` | Open research paper metadata | ✓ |
+| `wikidata` | Public linked-data entity records | ✓ |
+| `loc` | Library of Congress catalog and collection records | ✓ |
+| `pubmed` | NCBI PubMed publication metadata | ✓ |
+| `gdelt` | Public news-data provider | Optional |
+| `searxng` | A user-provided public HTTPS SearXNG instance | Optional |
+
+The **SearXNG Instance** field accepts a compatible public **HTTPS search server address**, not an article/DOI URL. For normal searches using the nine defaults, leave it blank. The optional SearXNG adapter is not a promise of Google/Bing coverage.
+
+## 💜 Swarm Cockpit visual tour
+
+![BLACKSWARM Cockpit interface: local controls and navigation shown before any search](../assets/BLACKSWARM-COCKPIT-PREVIEW.webp)
+
+*Screenshot of the actual v0.6.5 Cockpit at rest, with no private research data.*
+
+```text
+┌──────────────────────────── SWARM COCKPIT ────────────────────────────┐
+│  LIVE DISCOVERY: topic  [ MAX LINKS ] [ QUALITY ] [ SOURCE MATRIX ]  │
+│  [ LAUNCH SWARM ]                                                     │
+│  ┌── LIVE SIGNAL STREAM ─────────┐  ┌── PROVIDER SIGNALS ─────────┐ │
+│  │ progress and returned URLs    │  │ source counts / errors      │ │
+│  └───────────────────────────────┘  └───────────────────────────────┘ │
+│  ┌── RESULT EXPLORER ────────────┐  ┌── SAVED SESSIONS ────────────┐ │
+│  │ search · filter · star · next │  │ past Session IDs             │ │
+│  └───────────────────────────────┘  └───────────────────────────────┘ │
+│  ⭐ BOOKMARKS           🪐 DOMAIN NEBULA           🔀 SESSION DELTA    │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+To open: choose **[20]**, or run `bash OPEN-SWARM-COCKPIT.sh` from the source directory. The program starts a localhost server on an available port, prints a URL like **`http://127.0.0.1:<port>/`**, and opens the browser only because you explicitly asked for the Cockpit. A different person cannot open your localhost URL from their device.
+
+**Inside the Cockpit:** enter a search topic, select providers (default nine or custom), choose link cap and quality, then click **LAUNCH SWARM**. Provider activity streams both to the terminal and the browser. In **Result Explorer**, filter titles/snippets, sources and relevance; go forward/back through **20 results per page**; open a URL or star it. From **Saved Sessions**, switch to a past search without rescanning, compare sessions with **Session Delta**, and export selected results as CSV/JSON/HTML.
+
+**Stopping:** click the terminal that hosts the Cockpit, then press **Ctrl+C** once. From [20], this stops the local web server and returns to the command deck. Interrupting a still-running search can leave that search incomplete; earlier saved sessions remain.
+
+**Alternative:** [6] starts the optional local dashboard and **only prints the URL**, leaving it to you to open a browser.
+
+## 🧭 Constellation Navigator walkthrough
+
+Suppose you saved a session of 500 public links but do not want to scroll 500 lines.
+
+```text
+BLACKSWARM ❯ 11
+Session ID: <choose one from [3]>
+[1] SOURCES
+[2] TOPIC STARS
+[3] DOMAIN NEBULA
+[4] RELEVANCE
+[5] QUICK FIND
+CONSTELLATION ❯ 5
+Search SAVED titles/URLs/snippets: forensics
+```
+
+The resulting view lists only local matches. In the **link-list pager**, use `n` and `p` for next/previous pages, type the displayed list number to inspect its stored metadata, `f` to star a result, or `b` to go back. **At the Constellation menu, type the menu number first**; typing the keyword before choosing [5] will not search.
+
+Topic Stars [2] lets you pick a keyword from a frequency table. Domain Nebula [3] groups saved links by host. All of these operate on existing sessions without visiting the URLs again.
+
+## ⭐ Bookmarks, collections and tags
+
+- **[12] Bookmarked Intel:** star a discovered link, see your starred shelf, add or edit personal notes, and export favorites. The favorites database is separate from research sessions.
+- **[13] Intel Collections:** group bookmarked links in named folders. Explore **Collection Radar** to find a link across collections, **Collection Pulse** to compare collection sizes, and **Swarm Tags / Tag Nebula** for labels and counts.
+- **Cockpit star button:** tap ★ beside a live selected result to save it to the same local favorites shelf. Offline demo results are not real discoveries and cannot be bookmarked from the Cockpit.
+
+For any read-only inspection, you can open saved links in your browser manually. BLACKSWARM does not automatically confirm that each link still works or that its content is accurate.
+
+## 🔀 Compare sessions and investigate sources
+
+**[10] Session Delta:** choose two distinct session IDs, then examine shared and unique URLs. This helps compare two related searches without performing another network request.
+
+**[15] Source Pulse:** review how many public URLs each selected provider contributed, potential overlaps, and recorded timings/status when available. It explains the *search run*, not the reliability of the source's claims.
+
+**[9] Swarm Constellation:** view local visual breakdowns of saved domains, source types and topical words. **[3] Session History** is your source of truth for saved Session IDs and past search phrases.
+
+## 🧠 Ranking lenses, explained
+
+These modules help you understand the results you've **already collected**. They do not add new public providers or invent URLs.
+
+| Module | Use it for | Changes saved sessions? |
+|---|---|---|
+| **[7] Excluded Candidates** | Inspect collected URLs that did not enter the selected results | No |
+| **[16] Search Quality Lab** | Explain stored HIGH / POSSIBLE / LOW rules candidate by candidate | No |
+| **[17] Smart Intent Lens** | Preview whole-query ranking and which links would leave/enter | No |
+| **[18] Precision Lens** | Preview title-anchored relevance, weaker title matches and selection changes | No |
+| **[19] Concept Bridge** | Preview a small curated table of related cybersecurity title concepts | No |
+
+**Example:** a paper about *malware classification* may be relevant to `cybersecurity` even without that exact word in the title. Concept Bridge can flag that relationship and name the matched phrase; it does **not** read the full paper or endorse its findings.
+
+## 🧰 Complete command deck
+
+| Menu | Feature | Quick use |
+|:---:|---|---|
+| **1** | Live Public-Index Search | Topic → providers → link cap → quality → saved session |
+| **2** | Offline Demo | Practice with seven clearly illustrative URLs |
+| **3** | Saved Session History | Read actual session IDs and queries |
+| **4** | Show All Links | Print a session's selected URLs |
+| **5** | Export Session | Export CSV, JSON, HTML, or candidate RAW data on demand |
+| **6** | Optional Dashboard | Print local URL; no browser auto-launch |
+| **7** | Excluded Candidates | Inspect results filtered out of the selected list |
+| **8** | Example Desk | Read built-in menu/help examples |
+| **9** | Swarm Constellation | Read-only source/topic/domain map |
+| **10** | Session Delta | Compare saved URLs between two sessions |
+| **11** | Constellation Navigator | Browse and search saved titles, links, and snippets |
+| **12** | Bookmarked Intel | Star, note, search and export favorite links |
+| **13** | Intel Collections | Folders, Collection Radar/Pulse and tags |
+| **14** | Vault Guard | Deliberate private backup + checksum verification |
+| **15** | Source Pulse | Provider contribution and status report |
+| **16** | Search Quality Lab | Explain scores using stored candidate metadata |
+| **17** | Smart Intent Lens | Read-only whole-query ranking preview |
+| **18** | Precision Lens | Read-only title-first ranking preview |
+| **19** | Concept Bridge | Read-only related title concepts |
+| **20** | Swarm Cockpit | Open the local working graphical interface |
+| **0** | Quit | Exit terminal BLACKSWARM |
+
+## 💾 Exports and private backups
+
+In **[5] Export Session**, choose a saved Session ID and the output format. CSV is friendly to spreadsheets, JSON for processing, HTML for a locally viewable report, and RAW for stored candidate-level exports where supported. Exports are made only when you request them.
+
+In **[14] Vault Guard**, inspect private database status, explicitly confirm a backup, and verify a checksum manifest. This is **not** an automatic backup or restore. Backup ZIPs can contain private research and are **unencrypted**. Keep them off the public repository.
+
+## 🐞 Troubleshooting
+
+**The provider says `EMPTY`.** The API returned no candidates for that query. Try a shorter topic or another provider. `EMPTY` is not the same as `ERROR`.
+
+**The provider says `ERROR` or timed out.** That index did not respond successfully for this run. Other selected providers can continue; you might try it again later. Library of Congress and news sources are not guaranteed to be online.
+
+**I searched but got fewer than 1,000 links.** The limit is only a ceiling. Counts depend on provider coverage, filtering and URL deduplication.
+
+**SearXNG fails.** Supply an actual compatible public **HTTPS SearXNG search instance**, not a DOI, an article URL, or a local/private network address. Or just use the nine default providers.
+
+**The Cockpit page cannot open.** Use [20] again and inspect the printed `127.0.0.1` port. A localhost URL is accessible only on the machine running BLACKSWARM. [6] can print the URL without opening the browser.
+
+**A README screenshot has no real results.** The illustrated preview shows the interface before a search. Live links come from your own providers, not a preloaded catalog.
+
+**I want to stop the terminal feed.** `Ctrl+C` stops the running action and may stop the Cockpit server. If the search is still active, completing the search first gives it the best chance to save a full session.
+
+**The rainbow display looks wrong.** Run with `--color always`, or use `--color never` for plain output. Neither changes your OS terminal theme.
+
+**A result looks off-topic.** Try `focused`, `intent`, or `precision`, or review it via [7]/[16]–[19]. Research relevance and factual credibility are different questions.
+
+## 🔒 Privacy, honesty, and testing
+
+BLACKSWARM performs passive searches against supported **public indexes**. It is not a scanner, exploit tool, password collector, Google/Bing scraper, or access method for restricted systems. Many search operators are not supported by every catalog API. Provider metadata may be incomplete, misleading or outdated.
+
+Research databases, saved bookmarks, personal paths, credentials, and local backup archives must remain private. The local Cockpit binds to `127.0.0.1`; sharing that address does not publish the service to the internet.
+
+The **v0.6.5 source in this repository** includes a deterministic offline test suite:
 
 ```bash
 python3 -m unittest discover -s tests -q
 ```
 
-For the shorter introductory help, see [START-HERE.txt](START-HERE.txt) and [EXAMPLE-DESK.txt](EXAMPLE-DESK.txt).
+Passing offline tests does not guarantee that every external provider will be available during a live search.
 
-## 🌈 Main menu: all 14 features
-
-| Menu | Name | What it does |
-|---|---|---|
-| **1** | **LIVE PUBLIC-INDEX SEARCH** | Queries selected public research indexes, prints live progress/results in the terminal, deduplicates URLs, scores relevance, and saves a numbered session. |
-| **2** | **OFFLINE DEMO** | Generates seven illustrative example URLs for learning the interface; **not live research**. |
-| **3** | **SAVED SESSION HISTORY** | Lists actual saved searches with their **Session IDs**. |
-| **4** | **SHOW ALL LINKS FROM A SESSION** | Prints selected, saved URLs, titles, sources, and relevance information from a chosen session. |
-| **5** | **EXPORT SESSION** | Saves selected results as **CSV, JSON, or HTML**, or candidate records in **raw CSV/JSON**. Exports only when requested. |
-| **6** | **OPTIONAL DASHBOARD** | Starts a local dashboard and prints its localhost URL. **Does not automatically open a browser**. |
-| **7** | **REVIEW ALL EXCLUDED CANDIDATES** | Shows links collected but not selected for the saved result set, useful for reviewing what the relevance filter left out. |
-| **8** | **EXAMPLE DESK** | Explains sessions, IDs, searches, and exports with clearly labeled sample data. |
-| **9** | **SWARM CONSTELLATION** | Read-only rainbow charts of saved providers, domains, topic terms, and source overlap. |
-| **10** | **SESSION DELTA** | Compares two saved research sessions: URLs only in the older set, only in the newer set, and shared by both. |
-| **11** | **CONSTELLATION NAVIGATOR** | Browses saved results by source, topic, domain, relevance, or keyword. Can star a displayed link. |
-| **12** | **BOOKMARKED INTEL** | Maintains an independent favorite-link shelf, private notes, searching, and CSV/JSON exports. |
-| **13** | **INTEL COLLECTIONS** | Organizes starred links into folders; includes Collection Radar, Collection Pulse, and Swarm Tags. |
-| **14** | **VAULT GUARD** | Previews BLACKSWARM databases, makes a separate private backup after confirmation, and verifies a saved backup. |
-| **0** | **QUIT** | Exits BLACKSWARM. |
-
-### 1 · Live public-index search
-
-Select **[1]**, enter a research phrase, and choose your sources:
-
-- **Wikipedia:** public encyclopedia search results.
-- **Crossref:** scholarly publication and DOI metadata.
-- **Open Library:** public catalog records.
-- **Internet Archive:** indexed catalog and archive metadata.
-- **Europe PMC:** biomedical and life-sciences publication records.
-- **GDELT:** an additional public news-data source; may time out or fail independently.
-- **SearXNG:** optional public **HTTPS** instance that you provide. Availability and operator support depend on that instance.
-
-Press **Enter** at the sources prompt for the five default indexes: Wikipedia, Crossref, Open Library, Internet Archive, and Europe PMC. Other sources are opt-in. Available result limits are **50, 100, 250, 500, or 1,000** unique URLs; actual counts depend on provider results and deduplication. Choose **focused** (prioritize stronger heuristic matches) or **broad** (keep a wider ranked selection).
-
-BLACKSWARM prints provider progress and the saved link results in the terminal, along with a new **Session ID**. Search totals, relevance labels, and source coverage are heuristics, **not proof of completeness or accuracy**. Respect provider policies and reasonable request volume.
-
-### 2 · Offline demo
-
-Select **[2]** to see **seven illustrative URLs**. These are educational examples, not evidence of a live search. The demo can produce a session in your local research vault.
-
-### 3–5 · Session history, details, and exports
-
-**[3]** shows your actual Session IDs. A **Session ID** identifies one stored search, not a bookmark or collection.
-
-**[4]** asks for that Session ID and prints its saved links.
-
-**[5]** asks for the Session ID and export format. The accepted format names are `csv`, `json`, `html`, `rawcsv`, and `rawjson`. The **raw** choices describe the collected candidate records, including those excluded from the final saved selection. Files are written to a local exports folder and are not opened automatically. Exported files may contain sensitive personal research choices; review them before sharing.
-
-### 6 · Optional local dashboard
-
-**[6]** starts a localhost dashboard and prints the URL so **you** decide whether to open it. The normal menu never automatically opens the browser. You can also start it directly with `--dashboard`; `--open-dashboard` explicitly requests browser opening.
-
-### 7 · Excluded-candidate review
-
-**[7]** opens records collected during a saved session that were **not chosen** for the final saved set. Use it to evaluate filtering and missed relevant items. This views stored data only.
-
-### 8 · Example Desk
-
-**[8]** explains the distinction between actual session numbers and illustrative sample sessions. At supported Session ID prompts, `?` displays help, and Enter cancels.
-
-### 9 · Swarm Constellation
-
-**[9]** creates **read-only terminal charts** from one saved session: distribution by provider and domain, frequently occurring words in titles, and URLs appearing in multiple sources. It makes no new web requests.
-
-### 10 · Session Delta
-
-**[10]** compares an **older** and **newer** saved Session ID. It reports URLs unique to either snapshot and shared URLs. **It does not prove that a public webpage was created, deleted, or changed** between searches.
-
-### 11 · Constellation Navigator
-
-**[11]** opens a saved session and lets you drill down by:
-
-1. **Sources:** links grouped by contributing public index.
-2. **Topic Stars:** keywords extracted from saved titles.
-3. **Domain Nebula:** links grouped by hostname.
-4. **Relevance:** HIGH, POSSIBLE, or LOW heuristic ranking.
-5. **Quick Find:** search saved titles, URLs, and snippets.
-
-Inside a result list use `n` (next page), `p` (previous), a **displayed result number** (details), or `b` (back). To favorite a visible link, type **`f`**, press Enter, and then enter its displayed number. Shortcut: **`f 1`** stars displayed item 1. You can add a note or press Enter to skip it. **Type the letter f; do not press the F1 function key.**
-
-### 12 · Bookmarked Intel
-
-Saved favorites have their own **Bookmark IDs** distinct from Session IDs. The shelf stores copied result metadata and optional notes in an independent local database.
-
-| Menu | Bookmark control |
-|---|---|
-| **1** | View favorites and select a Bookmark ID to see its details |
-| **2** | Star a link from a saved session |
-| **3** | Edit an existing favorite note |
-| **4** | Remove one favorite after typing the required confirmation |
-| **5** | Export favorites as CSV or JSON |
-| **6** | Quick-find existing favorite titles, URLs, and notes |
-| **0** | Return to the command deck |
-
-In the favorites viewer you can also type `e` and select a Bookmark ID to edit its note. Removing a favorite does **not** delete the original research-session link.
-
-See [BOOKMARKS-GUIDE.txt](BOOKMARKS-GUIDE.txt) and [STAR-CONTROL-QUICKSTART.txt](STAR-CONTROL-QUICKSTART.txt).
-
-### 13 · Intel Collections
-
-Collections are **named folders of starred links**, independent of the original research vault and favorites database.
-
-| Menu | Collection control |
-|---|---|
-| **1** | View collections and their saved links |
-| **2** | Create a collection with optional description |
-| **3** | Add an existing starred bookmark by **Bookmark ID** |
-| **4** | Rename a collection or edit its description |
-| **5** | Unlink an item **from that collection only**, after confirming |
-| **6** | Export one collection as CSV or JSON |
-| **7** | **Collection Radar:** search across locally saved collection titles, notes, URLs, sources, and folders; optionally filter to one Collection ID |
-| **8** | **Collection Pulse:** rainbow chart of folder sizes, unique URLs, and cross-collection copies |
-| **9** | **Swarm Tags:** open the label manager |
-| **0** | Return to command deck |
-
-#### Swarm Tags submenu: [13] → [9]
-
-| Menu | Tag control |
-|---|---|
-| **1** | View currently tagged links in collections |
-| **2** | Pick a Collection ID and its displayed Item ID; attach a custom tag |
-| **3** | Remove a tag after typing the required confirmation |
-| **4** | Find saved links by tag text |
-| **5** | **Tag Nebula:** rainbow label-frequency chart |
-| **0** | Return to Collections |
-
-Tags apply to saved URLs across your collections. A tag label must contain **2–36 characters**. A collection's **Item ID** is different from the **Bookmark ID** used to add that link.
-
-Example: create collection **Cybersecurity Reads** using [13] → [2]; add bookmark 1 using [3]; use [7] to find your saved research; enter [9] → [2] to add a label, then [9] → [5] to see the Tag Nebula.
-
-See [INTEL-COLLECTIONS-GUIDE.txt](INTEL-COLLECTIONS-GUIDE.txt), [COLLECTION-RADAR-GUIDE.txt](COLLECTION-RADAR-GUIDE.txt), and [SWARM-TAGS-GUIDE.txt](SWARM-TAGS-GUIDE.txt).
-
-### 14 · Vault Guard
-
-Vault Guard makes **local snapshots of BLACKSWARM's own SQLite databases**. It is **not an external account recovery service**.
-
-| Menu | Vault Guard control |
-|---|---|
-| **1** | Read-only preview: existing research, bookmarks, collections, and tags databases |
-| **2** | Type **BACKUP** to create a new private ZIP containing consistent snapshots, an internal manifest, and SHA-256 verification |
-| **3** | Verify an existing ZIP's checksums and database integrity; no restore or overwrite |
-| **0** | Return to command deck |
-
-**Backup ZIPs are not encrypted.** Do not commit them to public GitHub repositories or share them casually. Vault Guard intentionally has **no restore button**. It does not modify the live databases during backup creation.
-
-See [VAULT-GUARD-GUIDE.txt](VAULT-GUARD-GUIDE.txt).
-
-## 🧭 Useful command-line options
-
-Launch these from the project folder by adding an option to `bash RUN-BLACKSWARM.sh`.
-
-| Option | Purpose |
-|---|---|
-| `--color always` | Force rainbow ANSI colors |
-| `--color auto` / `--color never` | Detect or disable ANSI colors |
-| `--color-test` | Show a read-only rainbow test |
-| `--examples` | Open the terminal Example Desk |
-| `--constellation 1` | Show Constellation for Session ID 1 |
-| `--compare 1 2` | Compare saved sessions 1 and 2 |
-| `--navigate 1` | Navigate saved Session ID 1 |
-| `--bookmarks` | Open Bookmarked Intel directly |
-| `--collections` | Open Collections directly |
-| `--vault-guard` | Open Vault Guard directly |
-| `--demo` | Run one illustrative offline demo |
-| `--cli --query "public cybersecurity research" --limit 100` | Run a one-off public-index query and exit |
-| `--dashboard` | Start localhost dashboard without opening the browser |
-| `--open-dashboard` | Explicitly open the localhost dashboard in the browser |
-| `--sources wikipedia,crossref` | Choose sources for a one-off search |
-| `--quality focused` / `--quality broad` | Select a relevance-saving mode |
-| `--searxng https://example.org` | Supply an authorized HTTPS SearXNG endpoint; replace example URL with an actual permitted instance |
-
-**Tip:** `--query`, `--limit`, `--sources`, `--quality`, and `--searxng` apply to one-off CLI searches; interactive menu [1] asks for these choices instead.
-
-## 🗃️ Data model and privacy
-
-- **Research sessions:** indexed results, ranking, candidates, and Session IDs.
-- **Favorites:** independently saved bookmarks and editable notes.
-- **Collections:** selected bookmark snapshots grouped into named folders.
-- **Tags:** URL-linked labels stored separately.
-- **Exports:** written only on explicit request.
-- **Backups:** new, unencrypted ZIP snapshots produced only after explicit confirmation.
-
-An item can have a **Session ID**, **Bookmark ID**, **Collection ID**, and **collection Item ID**. These are **different numbers**. Use the number requested by the current terminal prompt.
-
-No private databases, account credentials, personal usernames, hostnames, session histories, or private backups are supplied with the public source repository. **Never publish them.**
-
-## Troubleshooting
-
-- **No results / fewer than requested:** public indexes may have limited or unrelated metadata; change your research query or sources. A limit of 1,000 is a *cap*, not a guarantee.
-- **Source timeout:** one index may be temporarily unavailable; inspect terminal source statuses and try another source.
-- **No saved sessions:** start a live search with [1], or use [2] to learn from illustrative data.
-- **Wrong ID:** check [3] for Session IDs, [12] for Bookmark IDs, and [13] for Collection IDs.
-- **Bookmark note accidentally contains `f 1`:** [12] → [3] edits that note.
-- **No tagged links:** add a saved favorite to a collection, then [13] → [9] → [2] to tag it.
-- **No browser popped up:** this is intentional. BLACKSWARM is terminal-first.
-- **Backup verification fails:** treat the backup as untrusted; do not assume the saved archive can be recovered.
-- **Colors missing:** run with `--color always`, or test via `--color-test`.
-
-## Public research boundaries
-
-Use BLACKSWARM only for lawful, authorized, passive research of public sources. This application does **not** provide unauthorized intrusion, credential collection, exploit workflows, or private-system scanning. Source links and metadata are untrusted until independently checked.
-
----
-
-**BLACKSWARM // SCAN · COLLECT · RANK · VISUALIZE · BOOKMARK · ORGANIZE**  
-*GlitchByte Phantom Labs · Skull Swarm Edition* ☣️🌈💚💜
+**☣️🌈 GlitchByte Phantom Labs // Rainbow Skull Swarm // Search · Discover · Save · Explore**

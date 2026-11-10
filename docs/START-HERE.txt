@@ -1,15 +1,24 @@
-☣ BLACKSWARM // QUICK START 🌈
+☣️ BLACKSWARM // RAINBOW SKULL SWARM 🌈
 
-BLACKSWARM is a terminal-first public-index research tool from GlitchByte Phantom Labs.
+A free-first public-index research tool from GlitchByte Phantom Labs.
 
-Run from the repository directory (Python 3 required):
+QUICK START (Python 3):
   bash RUN-BLACKSWARM.sh --color always
 
-Choose [1] LIVE PUBLIC-INDEX SEARCH to begin.
-Choose [11] CONSTELLATION NAVIGATOR to browse saved links.
-Choose [12] BOOKMARKED INTEL to manage favorites and notes.
+CHOOSE YOUR PATH:
+  [1]  LIVE SEARCH: Enter a topic, choose public sources, link cap and quality.
+  [11] CONSTELLATION NAVIGATOR: Browse old results; use [5] QUICK FIND.
+  [12] BOOKMARKED INTEL: Star and note interesting public links.
+  [13] INTEL COLLECTIONS: Organize bookmarks into named collections and tags.
+  [20] SWARM COCKPIT: Open the working local graphical research interface.
 
-The browser stays closed until you intentionally open the optional local dashboard.
-All research data and exports stay on your computer.
+OPEN COCKPIT DIRECTLY:
+  bash OPEN-SWARM-COCKPIT.sh
 
-See the full guide in MANUAL.md or the project home in ../README.md.
+The visual interface is local at 127.0.0.1, and never opens automatically
+when simply starting the rainbow terminal. Keep private vaults on your machine.
+
+READ THE FULL GUIDE:
+  docs/MANUAL.md   (or visit the README on GitHub)
+
+GlitchByte Phantom Labs · Search · Discover · Save · Explore 💚💜
