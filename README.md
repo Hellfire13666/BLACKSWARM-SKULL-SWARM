@@ -14,6 +14,16 @@
 
 ---
 
+## 🔀 GLITCHBYTE INTEL SWITCHBOARD // SISTER TOOLS
+
+**🕷️ BLACKSWARM · YOU ARE HERE** &nbsp; ⇄ &nbsp; **[🦂 SWITCH TO VOIDSTING →](https://github.com/Hellfire13666/VOIDSTING)**
+
+**BLACKSWARM:** public-web discovery + Swarm Cockpit. **VOIDSTING:** public-username signals + VOIDPULSE Cockpit.
+
+*Two independent research tools. Each keeps its own local Cockpit, installation, and private vault.*
+
+---
+
 ## 👾 What is BLACKSWARM?
 
 BLACKSWARM gathers public search-index records into **one searchable research vault**. Run a multi-provider search, watch the sources report their results in your rainbow terminal, open a link, star a discovery, organize a collection, and export the links you want to revisit.
